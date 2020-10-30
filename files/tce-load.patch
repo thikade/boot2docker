@@ -11,7 +11,7 @@ index 1378b90..fea2aa8 100755
  
  copyInstall() {
  	[ -d /mnt/test ] || sudo /bin/mkdir -p /mnt/test
--	sudo /bin/mount $1 /mnt/test -t squashfs -o loop,ro,bs=4096
+-	sudo /bin/mount $1 /mnt/test -t squashfs -o loop,ro
 +	sudo /usr/local/bin/unsquashfs -force -dest /mnt/test $1 || exit 1
  	if [ "$?" == 0 ]; then
  		if [ "$(ls -A /mnt/test)" ]; then
