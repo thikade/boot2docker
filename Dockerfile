@@ -248,7 +248,9 @@ RUN setConfs="$(grep -vEh '^[#-]' /kernel-config.d/* | sort -u)"; \
 				echo "$confV" >> /usr/src/linux/.config; \
 			fi; \
 		done; \
-	); \
+	);
+
+RUN \
 	make -C /usr/src/linux olddefconfig; \
 	set +x; \
 	ret=; \
