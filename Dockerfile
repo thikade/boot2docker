@@ -250,6 +250,14 @@ RUN setConfs="$(grep -vEh '^[#-]' /kernel-config.d/* | sort -u)"; \
 		done; \
 	);
 
+# from https://www.wireguard.com/compilation/ #Building Directly In Tree
+RUN echo current path: $PWD; \
+	git clone https://git.zx2c4.com/wireguard-linux-compat /tmp/wireguard-linux-compat; \
+	git clone https://git.zx2c4.com/wireguard-tools /tmp/wireguard-tools; \
+	/tmp/wireguard-linux-compat/kernel-tree-scripts/jury-rig.sh /usr/src/linux; \
+	make -C /tmp/wireguard-tools/src -j$(nproc); \
+	make -C /tmp/wireguard-tools/src DESTDIR="$PWD" install
+
 RUN \
 	make -C /usr/src/linux olddefconfig; \
 	set +x; \
@@ -277,8 +285,8 @@ RUN \
 	done; \
 	[ -z "$ret" ] || exit "$ret"
 
-RUN make -C /usr/src/linux -j "$(nproc)" bzImage modules; \
-	make -C /usr/src/linux INSTALL_MOD_PATH="$PWD" modules_install
+RUN make -C /usr/src/linux -j "$(nproc)" bzImage modules;
+RUN make -C /usr/src/linux INSTALL_MOD_PATH="$PWD" modules_install
 RUN mkdir -p /tmp/iso/boot; \
 	cp -vLT /usr/src/linux/arch/x86_64/boot/bzImage /tmp/iso/boot/vmlinuz
 
@@ -291,10 +299,10 @@ RUN tcl-tce-load \
 		git \
 		iproute2 \
 		iptables \
-		ncurses-terminfo \
+		ncursesw-terminfo \
 		nfs-utils \
 		openssh \
-		openssl \
+		openssl-1.1.1 \
 		parted \
 		procps-ng \
 		rsync \
@@ -421,7 +429,7 @@ RUN { \
 		echo "VERSION=$DOCKER_VERSION"; \
 		echo 'ID=boot2docker'; \
 		echo 'ID_LIKE=tcl'; \
-		echo "VERSION_ID=$DOCKER_VERSION"; \
+		echo "VERSION_ID=${DOCKER_VERSION}-wireguard"; \
 		echo "PRETTY_NAME=\"Boot2Docker $DOCKER_VERSION (TCL $TCL_VERSION)\""; \
 		echo 'ANSI_COLOR="1;34"'; \
 		echo 'HOME_URL="https://github.com/boot2docker/boot2docker"'; \
@@ -510,7 +518,7 @@ COPY files/init.d/* ./etc/init.d/
 COPY files/bootsync.sh ./opt/
 
 # temporary boot debugging aid
-#RUN sed -i '2i set -x' etc/init.d/tc-config
+RUN sed -i '2i set -x' etc/init.d/tc-config
 
 COPY files/make-b2d-iso.sh /usr/local/bin/
 RUN time make-b2d-iso.sh; \
