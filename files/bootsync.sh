@@ -71,6 +71,9 @@ done
 
 /usr/local/etc/init.d/acpid start
 
+# make German keyboard the default
+loadkmap < /usr/share/kmap/qwertz/de-latin1.kmap
+
 if [ -e /var/lib/boot2docker/bootsync.sh ]; then
 	sh /var/lib/boot2docker/bootsync.sh
 fi

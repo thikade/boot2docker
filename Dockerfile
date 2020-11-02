@@ -299,6 +299,7 @@ RUN tcl-tce-load \
 		git \
 		iproute2 \
 		iptables \
+		kmaps \
 		ncursesw-terminfo \
 		nfs-utils \
 		openssh \
@@ -518,7 +519,7 @@ COPY files/init.d/* ./etc/init.d/
 COPY files/bootsync.sh ./opt/
 
 # temporary boot debugging aid
-RUN sed -i '2i set -x' etc/init.d/tc-config
+# RUN sed -i '2i set -x' etc/init.d/tc-config
 
 COPY files/make-b2d-iso.sh /usr/local/bin/
 RUN time make-b2d-iso.sh; \
